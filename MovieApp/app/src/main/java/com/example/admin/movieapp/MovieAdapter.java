@@ -1,12 +1,12 @@
 package com.example.admin.movieapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -23,22 +23,15 @@ public class MovieAdapter extends BaseAdapter {
 
 
 
-
-    public MovieAdapter(Context c){
-
-        mContext = c;
-    }
     public MovieAdapter(Context context, ArrayList<Movie>mList) {
         Movies = mList;
         mContext = context;
-        mInflater = LayoutInflater.from(context);
+       // mInflater = LayoutInflater.from(context);
     }
-
 
     @Override
     public int getCount() {
-       // Movies =   nwTask.getmovielist();
-       return Movies.size();
+        return  Movies.size();
        // return mThumbIds.length;
     }
 
@@ -49,55 +42,42 @@ public class MovieAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
+    }
+
+    public void addmovie(ArrayList<Movie> moviesList) {
+        Movies.clear();
+        for (Movie mv : moviesList) {
+            Movies.add(mv);
+        }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         ImageView imageView;
-        if (convertView == null) {
+        if (view == null) {
             //GridView gv = new GridView(mContext);
           // imageView = new ImageView(mContext);
             LayoutInflater inflater = (LayoutInflater)
                     mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.grid_view_item,null);
         }
-        else {
 
-            TextView MovieName = (TextView) view.findViewById(R.id.txt_item);
+
+           // TextView MovieName = (TextView) view.findViewById(R.id.txt_item);
             ImageView MoviePoster = (ImageView)view.findViewById(R.id.img_item);
-            MovieName.setText(Movies.get(position).getMovieName());
-            String fullPath = "http://image.tmdb.org/t/p/w185/ " + Movies.get(position).getImg_path();
-            Picasso.with(mContext).load(fullPath).into(MoviePoster);
-           //imageView = (ImageView) convertView;
-
-        }
-       // imageView.setImageResource(mThumbIds[position]);
-       // return imageView;
-
+           // MovieName.setText(Movies.get(position).getMovieName());
+        Log.e("TAG","http://image.tmdb.org/t/p/w185/"+ Movies.get(position).getImg_path());
+            Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+ Movies.get(position).getImg_path()).into(MoviePoster);
        return view;
 
 
     }
 
-//  private Integer[] mThumbIds = {
-//            R.drawable.bg, R.drawable.bg,
-//            R.drawable.bg, R.drawable.bg,
-//            R.drawable.bg, R.drawable.bg,
-//            R.drawable.bg, R.drawable.bg,
-//            R.drawable.bg, R.drawable.bg,
-//    };
 
-    public class ViewHolder{
-        ImageView MoviePoster;
-        TextView MovieName;
 
-//        public ViewHolder(View view){
-//          MoviePoster = (ImageView).view.findViewById(R.id.img_item);
-//           MovieName   =(TextView).view.findViewById(R.id.txt_item);
-//        }
 
-    }
+
 
 }

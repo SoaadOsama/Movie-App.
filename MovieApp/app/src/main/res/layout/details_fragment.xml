@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/activity_detail"
+    tools:context="com.example.admin.movieapp.Details.DetailFragment"
+    android:layout_margin="0dp"
+    android:weightSum="1">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:id="@+id/originalTitle"
+        android:layout_height="wrap_content"
+        android:textSize="150px"
+        android:layout_margin="0dp"
+        android:background="#00b386"
+        android:textColor="#fff"
+        android:layout_weight="0.26"
+        android:paddingTop="30dp"
+        android:paddingLeft="10dp"
+        android:layout_marginTop="0dp"
+        android:textStyle="italic"/>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="left"
+        />
+
+    <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/releaseDate"
+            android:layout_height="wrap_content"
+            android:textSize="70px"
+            />
+       <TextView
+           android:layout_width="wrap_content"
+           android:id="@+id/rating"
+           android:layout_height="wrap_content"
+           android:textSize="50px"
+          />
+
+
+
+
+   </LinearLayout>
+
+</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:id="@+id/overview"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="50px"
+        android:layout_marginLeft="16dp"
+        />
+</LinearLayout>
