@@ -143,7 +143,7 @@ public class MovieFragment extends Fragment {
 
         if(!isNetworkAvailable())
         {
-            Toast.makeText(rootView.getContext(), "There is no internet connection!", Toast.LENGTH_LONG).show();
+            Toast.makeText(rootView.getContext(), "Check your internet connection!", Toast.LENGTH_LONG).show();
         }
 
         else {
@@ -205,7 +205,7 @@ public class MovieFragment extends Fragment {
             try
             {
 
-                URL url = new URL(full_bath + params[0] + "?api_key=27f9099f4ea8768860d2a137501a2621");
+                URL url = new URL(full_bath + params[0] + "?api_key=put your API key here");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();

@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +63,7 @@ public class DetailFragment extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+
     public DetailFragment() {
         setHasOptionsMenu(true);
     }
@@ -73,7 +76,18 @@ public class DetailFragment extends Fragment {
         mAdapter = new KeyAdapter(getContext(),new ArrayList<String>());
         final View rootView = inflater.inflate(R.layout.details_fragment, container, false);
         listView = (ListView)rootView.findViewById(R.id.listv);
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            // Setting on Touch Listener for handling the touch inside ScrollView
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // Disallow the touch request for parent scroll on touch of child view
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
+
         listView.setAdapter(mAdapter);
+        setListViewHeightBasedOnChildren(listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -83,7 +97,17 @@ public class DetailFragment extends Fragment {
         });
         mRadapter = new ReviewAdapter(getContext(),new ArrayList<Reviews>());
         listView1 = (ListView)rootView.findViewById(R.id.listr);
+        listView1.setOnTouchListener(new View.OnTouchListener() {
+            // Setting on Touch Listener for handling the touch inside ScrollView
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // Disallow the touch request for parent scroll on touch of child view
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
         listView1.setAdapter(mRadapter);
+        setListViewHeightBasedOnChildren(listView1);
 
         TextView originalTitle = (TextView)rootView.findViewById(R.id.originalTitle);
         TextView overview = (TextView)rootView.findViewById(R.id.overview);
@@ -122,7 +146,7 @@ public class DetailFragment extends Fragment {
 
         if(!isNetworkAvailable())
         {
-            Toast.makeText(rootView.getContext(), "There is no internet connection!", Toast.LENGTH_LONG).show();
+            Toast.makeText(rootView.getContext(), "Check your internet connection!", Toast.LENGTH_LONG).show();
         }
         else {
 
@@ -132,7 +156,7 @@ public class DetailFragment extends Fragment {
         }
         if(!isNetworkAvailable())
         {
-            Toast.makeText(rootView.getContext(), "There is no internet connection!", Toast.LENGTH_LONG).show();
+            Toast.makeText(rootView.getContext(), "Check your internet connection!", Toast.LENGTH_LONG).show();
         }
         else {
             RTask newTask = new RTask(mRadapter) {
@@ -150,7 +174,7 @@ public class DetailFragment extends Fragment {
                         if (isInserted) {
                             Toast.makeText(rootView.getContext(), "Movie is added", Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(rootView.getContext(), "Movie is not added", Toast.LENGTH_LONG).show();
+                            Toast.makeText(rootView.getContext(), "Movie already exists", Toast.LENGTH_LONG).show();
                         }
 
 
@@ -183,7 +207,31 @@ public class DetailFragment extends Fragment {
     }
 
 
-        public class VTask extends AsyncTask<String,Void,ArrayList<String>> {
+
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = ViewGroup.MeasureSpec.makeMeasureSpec(listView.getWidth(), ViewGroup.MeasureSpec.UNSPECIFIED);
+        int totalHeight = 0;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, ViewGroup.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+    }
+
+
+    public class VTask extends AsyncTask<String,Void,ArrayList<String>> {
 
             // private ArrayList<Movie> MoviesList=new ArrayList<>();
 
