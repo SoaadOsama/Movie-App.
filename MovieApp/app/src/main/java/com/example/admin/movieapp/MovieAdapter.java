@@ -55,7 +55,6 @@ public class MovieAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        ImageView imageView;
         if (view == null) {
             //GridView gv = new GridView(mContext);
           // imageView = new ImageView(mContext);

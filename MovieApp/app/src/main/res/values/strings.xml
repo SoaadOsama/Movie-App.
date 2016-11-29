@@ -4,4 +4,5 @@
     <string name="Prefrences1">Top Rated</string>
     <string name="Prefrences2">Most Popular</string>
     <string name="action_settings">Settings</string>
+    <string name="fav">Favourites</string>
 </resources>

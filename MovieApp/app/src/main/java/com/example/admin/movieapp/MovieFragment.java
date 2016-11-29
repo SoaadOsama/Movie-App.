@@ -1,6 +1,9 @@
 package com.example.admin.movieapp;
 
-import android.content.Intent;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,9 +39,25 @@ public class MovieFragment extends Fragment {
     public MovieFragment(){}
     protected ArrayList<Movie> MoviesList= new ArrayList<Movie>();
     protected MovieAdapter mAdapter;
-    GridView gridview;
-    String MovieName;
-    String Img_path;
+    private DetailListener mDetailListener;
+    GridView gridView;
+   // String MovieName;
+    //String Img_path;
+    MovieDatabaseHelper mDBHelper;
+    View rootView;
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
+    void setmDetailListener(DetailListener detailListener)
+    {
+        this.mDetailListener = detailListener;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,19 +78,45 @@ public class MovieFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_pref1) {
-            updateTopRated();
+            updateTopRated(); //show the top rated
             return true;
         }
 
        else if (id == R.id.action_pref2) {
-            MovieTask nwTask = new MovieTask(mAdapter){
-                @Override
-                public void onPostExecute( ArrayList<Movie>  result) {
-                    super.onPostExecute(result);
-                    mAdapter.notifyDataSetChanged();
+           updatepopular();
+            return true;
+        }
+
+        else if (id == R.id.action_pref3) {
+            Cursor result = mDBHelper.getAllData(); //fetch data from DB and add it to cursor object
+           ArrayList<Movie> mlist= new ArrayList<Movie>(); //list to show the fav movies
+            if(result.getCount() == 0)
+            {
+                Toast.makeText(rootView.getContext(), "You don't have any favouraites yet!", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                while (result.moveToNext()) {
+                    int m_id= result.getInt(0);
+                    String img_path = result.getString(1);
+                    String originalTitle = result.getString(2);
+                    String overview = result.getString(3);
+                    String rating = result.getString(4);
+                    String releaseDate = result.getString(5);
+                    Movie m = new Movie();
+                    m.setid(m_id);
+                    m.setimg_path(img_path);
+                    m.setOriginalTitle(originalTitle);
+                    m.setOverview(overview);
+                    m.setRating(rating);
+                    m.setReleaseDate(releaseDate);
+                    mlist.add(m);
                 }
-            };
-            nwTask.execute("popular");
+               mAdapter.addmovie(mlist); //add the new arraylist
+                gridView.setAdapter(mAdapter);
+
+            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -82,31 +128,39 @@ public class MovieFragment extends Fragment {
 
 
         mAdapter = new MovieAdapter(getContext(),new ArrayList<Movie>());
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
+        rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setAdapter(mAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               Intent in = new Intent(getActivity(),Details.class);
-
-                Bundle b = new Bundle();
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Movie m = (Movie)mAdapter.getItem(position);
-                b.putString("Original Title",m.getOriginalTitle());
-                b.putString("Overview",m.getOverview());
-                b.putString("Rating",m.getRating());
-                b.putString("Release Date",m.getReleaseDate());
-                b.putString("img_path",m.getImg_path());
-                in.putExtras(b);
-                startActivity(in);
-
-
+               // Log.e("test", m.getMovieName());
+                mDetailListener.setSelectedMovie(m);
             }
         });
-        MovieTask nwTask = new MovieTask(mAdapter){};
-        nwTask.execute("popular");
+        mDBHelper =  new MovieDatabaseHelper(rootView.getContext());
+
+        if(!isNetworkAvailable())
+        {
+            Toast.makeText(rootView.getContext(), "There is no internet connection!", Toast.LENGTH_LONG).show();
+        }
+
+        else {
+            MovieTask nwTask = new MovieTask(mAdapter) {
+            };
+            nwTask.execute("popular");
+        }
         return rootView;
     }
+
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        MovieTask nwTask = new MovieTask(mAdapter) {
+//           };
+//        nwTask.execute("popular");
+//    }
 
     private void updateTopRated(){
         MovieTask nwTask = new MovieTask(mAdapter){
@@ -117,11 +171,16 @@ public class MovieFragment extends Fragment {
         };
         nwTask.execute("top_rated");
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateTopRated();
+    private void updatepopular(){
+        MovieTask nwTask = new MovieTask(mAdapter){
+            @Override
+            public void onPostExecute( ArrayList<Movie>  result) {
+                super.onPostExecute(result);
+            }
+        };
+        nwTask.execute("popular");
     }
+
 
     public class MovieTask extends AsyncTask<String,Void,ArrayList<Movie>> {
 
@@ -174,7 +233,7 @@ public class MovieFragment extends Fragment {
                     JSONObject moviesJson = new JSONObject(moviesJsonStr);
                     JSONArray results = moviesJson.getJSONArray("results");
 
-
+                    MoviesList.clear(); //to update the gridView
                     for(int i = 0; i<results.length();i++)
                     {
                         JSONObject jsonobj = results.getJSONObject(i);
@@ -184,6 +243,7 @@ public class MovieFragment extends Fragment {
                         String overview = jsonobj.getString("overview");
                         String Rating = jsonobj.getString("vote_average");
                         String releaseDate = jsonobj.getString("release_date");
+                        int ID = jsonobj.getInt("id");
                         Movie movie = new Movie();
                         movie.setMovieName(Title);
                         movie.setimg_path(Poster);
@@ -191,6 +251,7 @@ public class MovieFragment extends Fragment {
                         movie.setOverview(overview);
                         movie.setRating(Rating);
                         movie.setReleaseDate(releaseDate);
+                        movie.setid(ID);
                         MoviesList.add(movie);
 
                     }

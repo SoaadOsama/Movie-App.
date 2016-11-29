@@ -12,6 +12,7 @@ public class Movie {
     private String rating;
     private String overview;
     private String releaseDate;
+    int id;
 
 
     public Movie(){}
@@ -31,13 +32,13 @@ public class Movie {
         this.releaseDate = rd;
     }
 
-
     public String getMovieName(){return MovieName;}
     public String getImg_path () {return img_path;}
     public String getOriginalTitle () {return originalTitle;}
     public String getOverview () {return overview;}
     public String getRating () {return rating;}
     public String getReleaseDate () {return releaseDate;}
+    public int getID () {return id ;}
 
     public void setMovieName(String mName)
     {
@@ -68,10 +69,9 @@ public class Movie {
         this.releaseDate = rd;
     }
 
-
-
-
-
-
+    public void setid(int id)
+    {
+        this.id = id;
+    }
 
 }
